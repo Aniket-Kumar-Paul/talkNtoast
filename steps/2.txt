@@ -1,0 +1,8 @@
+1. Dividing into areas (Use Protected Routes for protected areas)
+    |_ Guest Area - / : welcome page
+    |             - /authenticate : phone no., OTP step
+    |_ Semi Protected Area - /activate : full name, avatar step
+    |_ Protected Area - /rooms : rooms page
+                      - /rooms/1 : single room
+                      - /profile : profile page
+

@@ -1,0 +1,19 @@
+@Setup ReactJs
+
+1. Intro
+> npx create-react-app frontend
+- clear unnecessary files / comments
+inside frontend folder:
+    > npm i react-router-dom
+
+2. Make pages folder in src and make different pages
+3. Use react-router-dom in App.js to route the pages
+4. Navigation bar component will be same for all pages -> make it inside src/components/shared folder
+5. Include the gooogle font links in public/index.html and icons/images in public/images
+6. NOTE:- - the App.css will be applied to all components, eg. if Navigation.jsx has a class container, then App.css's container css will be applied there too
+          - .module.css will only be applied to parent components & not the child ones.. for child use inline css
+7. Things which are being re-used will go in the components folder .. like the Card with the heading consisting of an emoji and a line for heading
+8. use children prop in components to get the contents written inside components when they are used
+9. for smooth hover transitions etc, use transition property
+10. since Button is being used as a component, we can't directly use onclick listener, therefore pass a function as a prop to Button component & handle it there
+11. for registration going to next steps, we will use a hashMap in Register.jsx and useState()

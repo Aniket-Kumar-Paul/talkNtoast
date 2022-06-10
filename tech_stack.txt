@@ -1,0 +1,16 @@
+Frontend:
+-reactjs
+-redux
+-css
+
+Backend:
+-nodejs
+-express (to handle apis)
+-mongodb (database)
+
+Real-time communication
+-webrtc (peer to peer connection, no server in between)
+-socket.io
+
+Containerize
+-docker
