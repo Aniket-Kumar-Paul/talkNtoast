@@ -1,0 +1,7 @@
+1. send phone number/email to server
+2. server generates otp to phone/email
+3. server generates hash of the otp and sends as a response to us with expire time
+4. the entered otp and received hash is send back to server
+5. the entered otp is hashed and matched with the received hash, if matched then otp valid 
+6. if otp is valid then, create user in database and generate 'jwt'/'access' tokens and save 'refresh' tokens in database
+7. the access token & refresh token is send as a response to the user
