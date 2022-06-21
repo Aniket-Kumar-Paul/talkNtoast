@@ -12,6 +12,6 @@ Content-Type: application/json
 
 {
     "phone": "+916296068399",
-    "otp": 5862,
-    "hash": "baf0cc9ee11cce08ac04fffa00b5ae69ba6f51dfeb54472c3c3a043d21132e00.1655702397440"
+    "otp": 1623,
+    "hash": "4d8b64d2457730ccbb5fc935b6b5902bd948b7561916520d405365c268c03c33.1655819222596"
 }

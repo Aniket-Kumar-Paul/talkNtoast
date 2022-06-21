@@ -1,6 +1,8 @@
 // for otp authentication
 const otpService = require('../services/otp-service');
 const hashService = require('../services/hash-service');
+const userService = require('../services/user-service');
+const tokenService = require('../services/token-service');
 
 
 class AuthController {
@@ -32,27 +34,48 @@ class AuthController {
 
     }
 
-    verifyOtp(req, res) {
+    async verifyOtp(req, res) {
         const { otp, hash, phone } = req.body;
-        if(!otp || !hash || !phone) {
-            res.status(400).json({message: "All fields are required"})
-
-            const [hashedOtp, expires] = hash.split('.');
-            if(Date.now() > expires) {
-                res.status(400).json({message: "OTP expired :("})
-            }
-
-            const data = `${phone}.${otp}.${expires}`
-            const isValid = otpService.verifyOtp(hashedOtp, data)
-
-            if(!isValid) {
-                res.status(400).json({message: 'Invalid OTP :('})
-            }
-
-            let user;
-            let accessToken;
-            let refreshToken;
+        if (!otp || !hash || !phone) {
+            res.status(400).json({ message: "All fields are required" })
         }
+
+        const [hashedOtp, expires] = hash.split('.');
+        if (Date.now() > +expires) { // expires is string, +expires converts into number
+            res.status(400).json({ message: "OTP expired :(" })
+        }
+
+        const data = `${phone}.${otp}.${expires}`
+        const isValid = otpService.verifyOtp(hashedOtp, data)
+
+        if (!isValid) {
+            res.status(400).json({ message: 'Invalid OTP :(' })
+        }
+
+        let user;
+
+        try {
+            user = await userService.findUser({ phone: phone }); // check if the user already exists
+            if (!user) { // if no user exits, create new user
+                user = await userService.createUser({ phone: phone });
+            }
+
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ message: 'Database Error' });
+        }
+
+        // Token
+        const { accessToken, refreshToken } = tokenService.generateTokens({ _id: user._id, activated: false });
+
+        // attach refreshToken to a http only cookie (=> js in client side can't read it) => automatically sent for every request (since its a cookie)
+        // attach accessToken to localstorage
+        res.cookie('refreshtoken', refreshToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 30, // in ms (30 days)
+            httpOnly: true
+        })
+
+        res.json({ accessToken })
     }
 }
 
