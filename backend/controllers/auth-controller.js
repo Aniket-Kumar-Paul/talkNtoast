@@ -70,15 +70,21 @@ class AuthController {
         // Token
         const { accessToken, refreshToken } = tokenService.generateTokens({ _id: user._id, activated: false });
 
-        // attach refreshToken to a http only cookie (=> js in client side can't read it) => automatically sent for every request (since its a cookie)
-        // attach accessToken to localstorage
+        // store refreshToken in database
+        await tokenService.storeRefreshToken(refreshToken, user._id)
+
+        // attach refreshToken & accessToken to a http only cookie (=> js in client side can't read it) & automatically sent for every request (since its a cookie)
         res.cookie('refreshtoken', refreshToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 30, // in ms (30 days)
+            httpOnly: true
+        })
+        res.cookie('accesstoken', accessToken, {
             maxAge: 1000 * 60 * 60 * 24 * 30, // in ms (30 days)
             httpOnly: true
         })
 
         const userDto = new UserDto(user); // tranforming to get only the required data in user
-        res.json({ accessToken, user: userDto })
+        res.json({ user: userDto, auth: true })
     }
 }
 
