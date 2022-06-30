@@ -7,12 +7,14 @@ import { setAvatar } from '../../../store/activateSlice'
 import { activate } from '../../../http'
 import { setAuth } from '../../../store/authSlice'
 import Loader from '../../../components/shared/Loader/Loader'
+import { useEffect } from 'react'
 
 const StepAvatar = ({ onNext }) => {
   const { name, avatar } = useSelector((state) => state.activate)
   const dispatch = useDispatch()
   const [image, setImage] = useState('/images/monkey.png')
   const [loading, setLoading] = useState(false)
+  const [unmounted, setUnMounted] = useState(false)
 
   async function submit() {
     if(!name || !avatar) return; 
@@ -21,16 +23,25 @@ const StepAvatar = ({ onNext }) => {
     try {
       const { data } = await activate({ name, avatar })
       if (data.auth) {
-        dispatch(setAuth(data))
+        // check
+        if(!unmounted) {
+          dispatch(setAuth(data))
+        }
       }
-      // setLoading(false)
+      
     } catch (err) {
       console.log(err)
-      // setLoading(false)
+      
     } finally {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    return () => { // cleanup function - after component unmounts, this callback runs, used for any async/promises etc.
+      setUnMounted(true)
+    }
+  }, [])
 
   if (loading) return <Loader message="Activation in Progress" />;
 
