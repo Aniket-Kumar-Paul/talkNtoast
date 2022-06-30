@@ -6,22 +6,33 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setAvatar } from '../../../store/activateSlice'
 import { activate } from '../../../http'
 import { setAuth } from '../../../store/authSlice'
+import Loader from '../../../components/shared/Loader/Loader'
 
 const StepAvatar = ({ onNext }) => {
   const { name, avatar } = useSelector((state) => state.activate)
   const dispatch = useDispatch()
   const [image, setImage] = useState('/images/monkey.png')
+  const [loading, setLoading] = useState(false)
 
   async function submit() {
+    if(!name || !avatar) return; 
+    
+    setLoading(true)
     try {
       const { data } = await activate({ name, avatar })
       if (data.auth) {
         dispatch(setAuth(data))
       }
+      // setLoading(false)
     } catch (err) {
       console.log(err)
+      // setLoading(false)
+    } finally {
+      setLoading(false)
     }
   }
+
+  if (loading) return <Loader message="Activation in Progress" />;
 
   function captureImage(e) { // e -> event
     // console.log(e)

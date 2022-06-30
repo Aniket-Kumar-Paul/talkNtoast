@@ -7,7 +7,7 @@ class TokenService {
     generateTokens(payload) {
         // jwt/access token
         const accessToken = jwt.sign(payload, accessTokenSecret, {
-            expiresIn: '1h' // 1 hour
+            expiresIn: '1m' // 1 min
         })
 
         // refresh token - store new refresh token in database when user logs in & delete it when logs out
@@ -29,8 +29,24 @@ class TokenService {
         }
     }
 
-    async verifyAccessToken(token) {
-        return jwt.verify(token, accessTokenSecret)
+    async verifyAccessToken(accessToken) {
+        return jwt.verify(accessToken, accessTokenSecret)
+    }
+
+    async verifyRefreshToken(refreshToken) {
+        return jwt.verify(refreshToken, refreshTokenSecret)
+    }
+
+    async findRefreshToken(userId, refreshToken) {
+        return await refreshModel.findOne({ userId: userId, token: refreshToken })
+    }
+
+    async updateRefreshToken(userId, refreshToken) {
+        return await refreshModel.updateOne({ userId: userId }, { token: refreshToken }) // (filter to find required data/object, what to update)
+    }
+
+    async removeToken(refreshToken) {
+        return await refreshModel.deleteOne({ token: refreshToken })
     }
 }
 

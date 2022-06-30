@@ -86,6 +86,81 @@ class AuthController {
         const userDto = new UserDto(user); // tranforming to get only the required data in user
         res.json({ user: userDto, auth: true })
     }
+
+    async refresh(req, res) {
+        console.log("inside refresh function")
+        // get refresh token from cookie
+        const { refreshtoken: refreshTokenFromCookie } = req.cookies; // : => rename/aliasing it as ..
+
+        // check if token is valid
+        let userData;
+        try {
+            userData = await tokenService.verifyRefreshToken(refreshTokenFromCookie)
+            console.log(`userData: ${userData}`)
+            console.log(userData._id)
+        } catch (err) {
+            console.log("userdata not found")
+            return res.status(401).json({ message: 'Invalid Token' })
+        }
+
+        // check if token is in database
+        try {
+            const token = tokenService.findRefreshToken(
+                userData._id,
+                refreshTokenFromCookie
+            )
+
+            if (!token) {
+                return res.status(401).json({ message: 'Token nahi mila' })
+            }
+        } catch (err) {
+            return res.status(500).json({ message: 'Internal Error' })
+        }
+
+        // check if valid user
+        const user = await userService.findUser({ _id: userData._id })
+        if (!user) {
+            return res.status(404).json({ message: 'No user found' })
+        }
+
+        // generate new tokens (both access & refresh)
+        const { accessToken, refreshToken } = tokenService.generateTokens({ _id: userData._id })
+        
+        // update with new refresh token
+        try {
+            await tokenService.updateRefreshToken(userData._id, refreshToken)
+        } catch (err) {
+            return res.status(500).json({ message: 'Internal Error' })
+        }
+
+        // put in cookie
+        res.cookie('refreshtoken', refreshToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 30, // in ms (30 days)
+            httpOnly: true
+        })
+        res.cookie('accesstoken', accessToken, {
+            maxAge: 1000 * 60 * 60 * 24 * 30, // in ms (30 days)
+            httpOnly: true
+        })
+
+        // send response to user
+        const userDto = new UserDto(user); // tranforming to get only the required data in user
+        res.json({ user: userDto, auth: true })
+    }
+
+    async logout(req, res) {
+        const { refreshtoken } = req.cookies
+        
+        // delete refresh token from database
+        await tokenService.removeToken(refreshtoken)
+        
+        // delete cookies
+        res.clearCookie('refreshtoken')
+        res.clearCookie('accesstoken')
+
+        // send response
+        res.json({user: null, auth: false})
+    }
 }
 
 module.exports = new AuthController(); //exporting object

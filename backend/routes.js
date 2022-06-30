@@ -6,5 +6,7 @@ const authMiddleware = require('./middlewares/auth-middleware');
 router.post('/api/send-otp', authController.sendOtp);
 router.post('/api/verify-otp', authController.verifyOtp);
 router.post('/api/activate', authMiddleware, activateController.activate) // first the request will go through middleware and will go to next(activate) only if conditions in middleware are met
+router.get('/api/refresh', authController.refresh);
+router.post('/api/logout', authMiddleware, authController.logout);
 
 module.exports = router;

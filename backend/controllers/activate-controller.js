@@ -10,7 +10,7 @@ class ActivateController {
         }
 
         // Convert the base64 Image string to an image and store in file system (storage folder)
-        const buffer = Buffer.from(avatar.replace(/^data:image\/png;base64,/, ''), 'base64') // we only need the base64 string, so replace 'data:image/png;base64' with '' which is prefixed to it
+        const buffer = Buffer.from(avatar.replace(/^data:image\/(png|jpg|jpeg);base64,/, ''), 'base64') // we only need the base64 string, so replace 'data:image/png;base64' with '' which is prefixed to it
 
         const imageName = `${Date.now()}-${Math.round(
             Math.random() * 1e9
