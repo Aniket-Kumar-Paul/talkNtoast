@@ -14,24 +14,24 @@ const StepAvatar = ({ onNext }) => {
   const dispatch = useDispatch()
   const [image, setImage] = useState('/images/monkey.png')
   const [loading, setLoading] = useState(false)
-  const [unmounted, setUnMounted] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   async function submit() {
-    if(!name || !avatar) return; 
-    
+    if (!name || !avatar) return;
+
     setLoading(true)
     try {
       const { data } = await activate({ name, avatar })
       if (data.auth) {
         // check
-        if(!unmounted) {
+        if (mounted) {
           dispatch(setAuth(data))
         }
       }
-      
+
     } catch (err) {
       console.log(err)
-      
+
     } finally {
       setLoading(false)
     }
@@ -39,7 +39,7 @@ const StepAvatar = ({ onNext }) => {
 
   useEffect(() => {
     return () => { // cleanup function - after component unmounts, this callback runs, used for any async/promises etc.
-      setUnMounted(true)
+      setMounted(true)
     }
   }, [])
 

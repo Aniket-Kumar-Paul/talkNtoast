@@ -4,3 +4,27 @@
     align-items: center;
     justify-content: space-between;
 }
+
+.logoutButton {
+    background: none;
+    cursor: pointer;
+}
+
+.logoutImage {
+    width: 40px;
+    height: 40px;
+    filter: invert(27%) sepia(75%) saturate(2783%) hue-rotate(203deg) brightness(103%) contrast(106%);;
+}
+
+.navRight {
+    display: flex;
+    align-items: center;
+}
+
+.avatar {
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #0077ff;
+    margin: 0 20px;
+    margin-right: 10px;
+}
