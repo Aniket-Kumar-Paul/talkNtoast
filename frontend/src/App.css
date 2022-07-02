@@ -4,14 +4,13 @@
 /* https://www.digitalocean.com/community/tutorials/css-minimal-css-reset */
 
 html {
-    box-sizing: border-box;
     font-size: 16px;
 }
 
 *,
 *:before,
 *:after {
-    box-sizing: inherit;
+    box-sizing: border-box;
 }
 
 body,

@@ -88,7 +88,6 @@ class AuthController {
     }
 
     async refresh(req, res) {
-        console.log("inside refresh function")
         // get refresh token from cookie
         const { refreshtoken: refreshTokenFromCookie } = req.cookies; // : => rename/aliasing it as ..
 
@@ -96,10 +95,7 @@ class AuthController {
         let userData;
         try {
             userData = await tokenService.verifyRefreshToken(refreshTokenFromCookie)
-            console.log(`userData: ${userData}`)
-            console.log(userData._id)
         } catch (err) {
-            console.log("userdata not found")
             return res.status(401).json({ message: 'Invalid Token' })
         }
 
