@@ -12,6 +12,7 @@ import ProtectedRoute from './Protected Routes/ProtectedRoute';
 import Navigation from './components/shared/Navigation/Navigation';
 import { useLoadingWithRefresh } from './hooks/useLoadingWithRefresh'
 import Loader from './components/shared/Loader/Loader';
+import Room from './pages/Room/Room';
 
 function App() {
   const { loading } = useLoadingWithRefresh()
@@ -34,6 +35,7 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path='/rooms' element={<Rooms />} />
+            <Route path='/room/:id' element={<Room />} /> {/* :id means it will change dynamically */}
           </Route>
 
           {/* Catch all / No path matched  */}

@@ -3,8 +3,10 @@ import styles from './AddRoomModal.module.css'
 import TextInput from '../shared/TextInput/TextInput'
 import { useState } from 'react'
 import { createRoom as create } from '../../http'
+import { useNavigate } from 'react-router-dom'
 
 function AddRoomModal({ onClose }) {
+    const navigate = useNavigate();
     const [roomType, setRoomType] = useState('open');
     const [topic, setTopic] = useState('')
 
@@ -12,6 +14,7 @@ function AddRoomModal({ onClose }) {
         try {
             if(!topic) return;
             const { data } = await create({ topic, roomType })
+            navigate(`/room/${data.id}`); // redirect to this route
         } catch (err) {
             console.log(err.message)
         }

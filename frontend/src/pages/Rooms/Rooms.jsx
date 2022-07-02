@@ -1,50 +1,22 @@
 import React from 'react'
+import { useEffect } from 'react'
 import { useState } from 'react'
 import AddRoomModal from '../../components/AddRoomModal/AddRoomModal'
 import RoomCard from '../../components/shared/RoomCard/RoomCard'
+import { getAllRooms } from '../../http'
 import styles from './Rooms.module.css'
-
-const rooms = [
-  {
-    id: 1,
-    topic: 'which framework is best?',
-    speakers: [
-      {
-        id: 1,
-        name: 'John Doe',
-        avatar: '/images/monkey.png'
-      },
-      {
-        id: 2,
-        name: 'Jane Doe',
-        avatar: '/images/monkey.png'
-      }
-    ],
-    totalPeople: 40
-  },
-  {
-    id: 2,
-    topic: 'which framework is best?',
-    speakers: [
-      {
-        id: 1,
-        name: 'John Doe',
-        avatar: '/images/monkey.png'
-      },
-      {
-        id: 2,
-        name: 'Jane Doe',
-        avatar: '/images/monkey.png'
-      }
-    ],
-    totalPeople: 50
-  }
-]
-
-
 
 const Rooms = () => {
   const [showModal, setShowModal] = useState(false)
+  const [rooms, setRooms] = useState([]);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const { data } = await getAllRooms();
+      setRooms(data)
+    }
+    fetchRooms();
+  }, [])
 
   function openModal() {
     setShowModal(true)
