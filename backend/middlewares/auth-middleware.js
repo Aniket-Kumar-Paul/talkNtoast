@@ -7,8 +7,7 @@ module.exports = async function(req, res, next) {
             throw new Error()
         }
         
-        const userData = await tokenService.verifyAccessToken(accesstoken)
-        console.log(`userData: ${userData}`) // gives _id, activated, iat, exp
+        const userData = await tokenService.verifyAccessToken(accesstoken) // gives _id, activated, iat, exp
         if (!userData) {
             throw new Error();
         }
