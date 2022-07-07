@@ -17,7 +17,10 @@ const StepAvatar = ({ onNext }) => {
   const [mounted, setMounted] = useState(false)
 
   async function submit() {
-    if (!name || !avatar) return;
+    if (!name || !avatar) {
+      console.log("Name or Avatar not found")
+      return;
+    } 
 
     setLoading(true)
     try {
@@ -25,7 +28,9 @@ const StepAvatar = ({ onNext }) => {
       if (data.auth) {
         // check
         if (mounted) {
+          console.log('mounted')
           dispatch(setAuth(data))
+          console.log('dispatched data')
         }
       }
 
