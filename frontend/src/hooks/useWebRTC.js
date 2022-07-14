@@ -9,6 +9,7 @@ export const useWebRTC = (roomId, user) => {
     // we want to run a callback function after client is updated using setClients
     // but the useState hook doesn't have this as an inbuilt functionality, so we create a custom hook useStateWithCallback
     const [clients, setClients] = useStateWithCallback([]);
+    const clientsRef = useRef([])
     // object with {userId: audioElementInstance}, to get which audio instance is related to which user, will be used for muting etc.
     const audioElements = useRef({})
     // peer connections {userSocketId: webrtcPeerConnectionObject}
@@ -61,7 +62,7 @@ export const useWebRTC = (roomId, user) => {
             }
 
             startCapture().then(() => {
-                addNewClient(user, () => {
+                addNewClient({ ...user, muted: true }, () => {
                     const localElement = audioElements.current[user.id] // get audio element
 
                     if (localElement) {
@@ -130,7 +131,7 @@ export const useWebRTC = (roomId, user) => {
                 }) => {
                     // streams is an array, get remoteStream property from it
                     // add new client
-                    addNewClient(remoteUser, () => {
+                    addNewClient({ ...remoteUser, muted: true }, () => {
                         // check if audio element for this client is already present
                         if (audioElements.current[remoteUser.id]) {
                             audioElements.current[remoteUser.id].srcObject = remoteStream
@@ -271,9 +272,69 @@ export const useWebRTC = (roomId, user) => {
         }
     }, [])
 
+
+    useEffect(() => {
+        clientsRef.current = clients
+    }, [clients])
+
+    // Listening for mute/unmute
+    const listened = useRef(false)
+    useEffect(() => {
+        if (listened.current || process.env.NODE_ENV !== 'development') {
+            socket.current.on(ACTIONS.MUTE, ({ peerId, userId }) => {
+                setMute(true, userId)
+            })
+            socket.current.on(ACTIONS.UNMUTE, ({ peerId, userId }) => {
+                setMute(false, userId)
+            })
+            const setMute = (mute, userId) => {
+                const clientIdx = clientsRef.current.map(client => client.id).indexOf(userId);
+                const connectedClients = JSON.parse(  // to copy a ref object/array, we do like this
+                    JSON.stringify(clientsRef.current)
+                );
+                if (clientIdx > -1) {
+                    connectedClients[clientIdx].muted = mute;
+                    setClients(connectedClients)
+                }
+            }
+        }
+        // cleanup
+        return () => {
+            listened.current = true;
+        }
+    }, [])
+
     const provideRef = (instance, userId) => {
         audioElements.current[userId] = instance;
     }
 
-    return { clients, provideRef }
+
+    // handling mute
+    const handleMute = (isMute, userId) => {
+        let settled = false
+        let interval = setInterval(() => {
+            if (localMediaStream.current) {
+                localMediaStream.current.getTracks()[0].enabled = !isMute; // mute myself
+                if (isMute) { // sending info to other clients to mute my stream/update my mute icon
+                    socket.current.emit(ACTIONS.MUTE, {
+                        roomId,
+                        userId
+                    })
+                } else {
+                    socket.current.emit(ACTIONS.UNMUTE, {
+                        roomId,
+                        userId
+                    })
+                }
+
+                settled = true
+            }
+
+            if (settled) {
+                clearInterval(interval)
+            }
+        }, 200);
+    }
+
+    return { clients, provideRef, handleMute }
 }

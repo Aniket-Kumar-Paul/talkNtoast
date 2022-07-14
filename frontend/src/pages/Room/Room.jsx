@@ -10,9 +10,14 @@ import { getRoom } from '../../http'
 function Room() {
   const { id: roomId } = useParams();
   const { user } = useSelector(state => state.auth)
-  const { clients, provideRef } = useWebRTC(roomId, user);
+  const { clients, provideRef, handleMute } = useWebRTC(roomId, user);
   const navigate = useNavigate()
   const [room, setRoom] = useState(null)
+  const [isMute, setMute] = useState(true)
+
+  useEffect(() => {
+    handleMute(isMute, user.id)
+  }, [isMute])
 
   const handleManualLeave = () => {
     navigate('/rooms')
@@ -25,6 +30,11 @@ function Room() {
     }
     fetchRoom()
   }, [roomId])
+
+  const handleMuteClick = (clientId) => {
+    if(clientId !== user.id) return ;
+    setMute((prev) => !prev)
+  }
 
   return (
     <div>
@@ -59,11 +69,16 @@ function Room() {
                       autoPlay>
                     </audio>
                     <img className={styles.useAvatar} src={client.avatar} alt="avatar" />
+
                     {/* mic */}
-                    <button className={styles.micBtn}>
-                      {/* <img src="/images/unmuted.png" alt="" /> */}
-                      <img src="/images/muted.png" alt="" />
+                    <button onClick={() => handleMuteClick(client.id)} className={styles.micBtn}>
+                      {
+                        client.muted
+                          ? (<img src="/images/muted.png" alt="" />)
+                          : (<img src="/images/unmuted.png" alt="" />)
+                      }
                     </button>
+
                     <h4>{client.name}</h4>
                   </div>
                 </div>
