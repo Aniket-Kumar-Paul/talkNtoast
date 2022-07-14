@@ -13,7 +13,7 @@
 .logoutImage {
     width: 40px;
     height: 40px;
-    filter: invert(27%) sepia(75%) saturate(2783%) hue-rotate(203deg) brightness(103%) contrast(106%);;
+    filter: invert(27%) sepia(75%) saturate(2783%) hue-rotate(203deg) brightness(103%) contrast(106%);
 }
 
 .navRight {

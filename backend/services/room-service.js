@@ -17,8 +17,13 @@ class RoomService {
         const rooms = await RoomModel.find({ roomType: { $in: types } }) // types is an array, so filter for each type in array
             .populate('speakers') // will get all details from the referred mongodb collection
             .populate('ownerId')
-            .exec()  
+            .exec()
         return rooms;
+    }
+
+    async getRoom(roomId) {
+        const room = await RoomModel.findOne({ _id: roomId })
+        return room
     }
 }
 
