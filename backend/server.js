@@ -1,6 +1,10 @@
 require('dotenv').config();
-const express = require('express');
 
+const DbConnect = require('./database');
+DbConnect(); // connect database
+
+
+const express = require('express');
 const app = express();
 const server = require('http').createServer(app)
 
@@ -12,8 +16,6 @@ const io = require('socket.io')(server, {
     }
 })
 
-const router = require('./routes');
-const DbConnect = require('./database');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
 const ACTIONS = require('./actions')
@@ -30,9 +32,8 @@ app.use(cors(corsOption))
 app.use('/storage', express.static('storage')) // if url has /storage serve all files from storage folder as static files
 
 const PORT = process.env.PORT || 5500;
-DbConnect(); // connect database
+
 app.use(express.json({ limit: '8mb' })) // giving limit to allow uploading image
-app.use(router);
 
 app.get('/', (req, res) => {
     res.send('Hello from express');
@@ -112,6 +113,19 @@ io.on('connection', (socket) => {
         })
     })
 
+    socket.on(ACTIONS.MUTE_INFO, ({ userId, roomId, isMute }) => {
+        const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+        clients.forEach((clientId) => {
+            if (clientId !== socket.id) {
+                console.log('mute info');
+                io.to(clientId).emit(ACTIONS.MUTE_INFO, {
+                    userId,
+                    isMute,
+                });
+            }
+        });
+    });
+
     // Leaving room
     const leaveRoom = ({ roomId }) => {
         const { rooms } = socket; // get all connected rooms
@@ -140,5 +154,8 @@ io.on('connection', (socket) => {
     socket.on(ACTIONS.LEAVE, leaveRoom)
     socket.on('disconnecting', leaveRoom);
 })
+
+const router = require('./routes');
+app.use(router);
 
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));

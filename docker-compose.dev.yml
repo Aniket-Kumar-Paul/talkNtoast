@@ -1,0 +1,41 @@
+version: "3"
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - /Projects/talkNtoast_Data:/data/db
+  backend:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./backend/
+    container_name: backend
+    restart: always
+    ports:
+      - "5500:5500"
+    env_file:
+      - ./backend/.env.dev
+    volumes:
+      - ./backend:/backend # linking volumes, will copy any changes automatically without restarting container
+      - /backend/node_modules # anonymous volume [ignore any change in this folder]
+    depends_on:
+      - mongodb
+  frontend:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env.dev
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true # for react
+    depends_on:
+      - backend
